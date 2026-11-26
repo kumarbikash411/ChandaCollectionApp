@@ -1,20 +1,33 @@
 import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:5000/api';
+import { API_BASE_URL, API_TIMEOUT } from '../config/api';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: API_TIMEOUT,
 });
 
 // Add token to requests
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem('authToken') || 
+                AsyncStorage.getItem('authToken'); // for React Native
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
+
+// Handle errors
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid
+      localStorage.removeItem('authToken');
+      AsyncStorage.removeItem('authToken');
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const authService = {
   signup: (email, password, firstName, lastName) =>

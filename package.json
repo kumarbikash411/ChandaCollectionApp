@@ -1,0 +1,9 @@
+{
+  "name": "chandacollection",
+  "private": true,
+  "scripts": {
+    "build": "cd backend && npm ci",
+    "start": "cd backend && npm start"
+  },
+  "engines": { "node": ">=18" }
+}
